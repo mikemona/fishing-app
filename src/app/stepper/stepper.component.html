@@ -1,0 +1,163 @@
+<div class="stepper">
+  <ng-template #parentRowTpl let-item="item" let-i="i" let-closeOnSelect="closeOnSelect">
+    <button
+      class="stepper-item"
+      [class.active]="i === activeIndex"
+      [class.success]="item.status === 'success'"
+      [class.warning]="item.status === 'warning'"
+      [class.error]="item.status === 'error'"
+      [class.disabled]="item.status === 'disabled'"
+      (click)="
+        selectStep(i); !item.hasChildren && closeOnSelect ? toggleMobileAccordion(false) : null
+      "
+    >
+      <span class="stepper-item__number">
+        @if (item.hasChildren && i === activeIndex && item.activeChild) {
+          <span>{{ i + 1 }}</span>
+        } @else if (!item.hasChildren && i === activeIndex) {
+          <i class="fas fa-angle-right"></i>
+        } @else {
+          @switch (item.status) {
+            @case ('success') {
+              <i class="fas fa-check"></i>
+            }
+            @case ('warning') {
+              <i class="fas fa-exclamation-triangle"></i>
+            }
+            @case ('error') {
+              <i class="fas fa-xmark"></i>
+            }
+            @default {
+              <span>{{ i + 1 }}</span>
+            }
+          }
+        }
+      </span>
+
+      <span class="stepper-item__label">{{ item.label }}</span>
+
+      @if (item.hasChildren) {
+        <i class="fas fa-angle-down accordion-icon" [class.rotated]="item.expanded"></i>
+      }
+    </button>
+  </ng-template>
+
+  <ng-template #childRowTpl let-child="child" let-i="i" let-c="c" let-closeOnSelect="closeOnSelect">
+    <button
+      class="stepper-subitem"
+      [class.active]="i === activeIndex && c === activeChildIndex"
+      [class.success]="child.status === 'success'"
+      [class.warning]="child.status === 'warning'"
+      [class.error]="child.status === 'error'"
+      [class.disabled]="child.status === 'disabled'"
+      (click)="selectChild(i, c); closeOnSelect ? toggleMobileAccordion(false) : null"
+    >
+      <span class="stepper-subitem__number">
+        @if (i === activeIndex && c === activeChildIndex) {
+          <i class="fas fa-angle-right"></i>
+        } @else {
+          @switch (child.status) {
+            @case ('success') {
+              <i class="fas fa-check"></i>
+            }
+            @case ('warning') {
+              <i class="fas fa-exclamation-triangle"></i>
+            }
+            @case ('error') {
+              <i class="fas fa-xmark"></i>
+            }
+            @default {
+              <span>{{ c + 1 }}</span>
+            }
+          }
+        }
+      </span>
+
+      <span class="stepper-subitem__label">{{ child.label }}</span>
+    </button>
+  </ng-template>
+  <ng-template #stepListTpl let-closeOnSelect="closeOnSelect">
+    @for (item of itemsArray; track item; let i = $index) {
+      <ng-container
+        [ngTemplateOutlet]="parentRowTpl"
+        [ngTemplateOutletContext]="{ item: item, i: i, closeOnSelect: closeOnSelect }"
+      ></ng-container>
+
+      <div class="stepper-subitems" [class.open]="item.hasChildren && item.expanded">
+        @for (child of item.childrenArray; track child; let c = $index) {
+          <ng-container
+            [ngTemplateOutlet]="childRowTpl"
+            [ngTemplateOutletContext]="{
+              child: child,
+              i: i,
+              c: c,
+              closeOnSelect: closeOnSelect,
+            }"
+          ></ng-container>
+        }
+      </div>
+    }
+  </ng-template>
+
+  <button
+    class="stepper-title"
+    [class.menu-open]="isMobile && mobileAccordionOpen"
+    (click)="isMobile ? toggleMobileAccordion() : null"
+  >
+    <div class="stepper-title__title">
+      {{ headerTitle }}
+
+      <div class="stepper-title__subtitle">
+        @if (headerSubtitle) {
+          {{ headerSubtitle }}
+        }
+      </div>
+    </div>
+
+    <div class="stepper-title__right">
+      <span class="stepper-progress"> {{ activeIndex + 1 }} of {{ itemsArray.length }} </span>
+      @if (isMobile && itemsArray.length > 0) {
+        <i
+          class="fas fa-angle-down accordion-icon"
+          [class.rotated]="isMobile && mobileAccordionOpen"
+        ></i>
+      }
+    </div>
+
+    <div
+      class="stepper-items-mobile"
+      [class.open]="isMobile && mobileAccordionOpen"
+      (click)="$event.stopPropagation()"
+    >
+      <ng-container
+        [ngTemplateOutlet]="stepListTpl"
+        [ngTemplateOutletContext]="{ closeOnSelect: true }"
+      ></ng-container>
+    </div>
+  </button>
+
+  <div class="stepper-wrapper">
+    @if (!isMobile) {
+      <div class="stepper-items">
+        <ng-container
+          [ngTemplateOutlet]="stepListTpl"
+          [ngTemplateOutletContext]="{ closeOnSelect: false }"
+        ></ng-container>
+      </div>
+    }
+
+    <div class="stepper-content-card">
+      @if (activeContent) {
+        <ng-container *ngTemplateOutlet="activeContent"></ng-container>
+      }
+    </div>
+  </div>
+
+  @if (isMobile) {
+    <div class="stepper-content-card">
+      @if (activeContent) {
+        <ng-container *ngTemplateOutlet="activeContent"></ng-container>
+      }
+    </div>
+  }
+</div>

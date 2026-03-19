@@ -1,0 +1,510 @@
+.stepper {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-areas: 'header' 'wrapper';
+  height: 100%;
+  width: 100%;
+}
+
+.stepper-title {
+  all: unset;
+  grid-area: header;
+  position: sticky;
+  top: 0;
+  background-color: var(--white);
+  color: var(--text-color);
+  height: 60px;
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'title right';
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: space-between;
+  padding: 4px var(--base-padding);
+  z-index: 100;
+  transition: background-color 0.8s ease-in-out;
+
+  &.menu-open {
+    background-color: var(--card-bg);
+    transition: background-color 0.05s ease-in-out;
+  }
+
+  &__title {
+    grid-area: title;
+    min-width: 0;
+    width: 100%;
+    gap: 4px;
+    font-family: 'Lato', sans-serif;
+    font-size: 24px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__subtitle {
+    margin-top: 4px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: var(--font-size);
+    color: var(--gray500);
+  }
+
+  &__right {
+    grid-area: right;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .stepper-progress {
+      display: none;
+    }
+  }
+
+  &.accordion-icon {
+    display: none;
+  }
+}
+
+.stepper-content {
+  display: flex;
+  gap: 8px;
+  padding: 16px 24px;
+  flex-wrap: wrap;
+}
+
+.stepper-wrapper {
+  grid-area: wrapper;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: 'content items';
+  gap: 16px;
+  padding: var(--base-padding);
+}
+
+.stepper-items {
+  position: sticky;
+  top: 92px;
+  grid-area: items;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 300px;
+  height: fit-content;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  padding: var(--base-padding-sm);
+  border-radius: var(--card-border-radius);
+  transition: all 0.3s ease-in-out;
+}
+
+// Mobile accordion content for step items
+.stepper-items-mobile {
+  display: flex;
+  gap: 4px;
+  position: absolute;
+  top: 60px;
+  width: 100%;
+  max-height: 400px;
+  border-radius: 0 0 var(--card-border-radius) var(--card-border-radius);
+  flex-direction: column;
+  padding: 0;
+  margin: 8px 0;
+  background: var(--card-bg);
+  z-index: 10;
+  overflow: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  /* animation setup */
+  overflow: hidden;
+  max-height: 0;
+  pointer-events: none;
+  transition:
+    max-height 0.3s ease-in-out,
+    padding 0.3s ease-in-out;
+}
+
+.stepper-items-mobile.open {
+  max-height: 400px;
+  padding: var(--base-padding-sm);
+  pointer-events: auto;
+  overflow: auto;
+}
+
+@media (min-width: 721px) {
+  .stepper-items-mobile {
+    display: none;
+  }
+}
+
+.stepper-content-card {
+  grid-area: content;
+  display: flex;
+  flex-direction: column;
+}
+
+.stepper-item {
+  all: unset;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: 'number label icon';
+  cursor: pointer;
+  padding: 4px 6px;
+  margin-bottom: 4px;
+  align-items: center;
+  width: 100%;
+  color: var(--text-color);
+  border-radius: var(--border-radius-sm);
+  box-sizing: border-box;
+  transition: all 0.2s ease-in-out;
+
+  &__label {
+    grid-area: label;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__number {
+    grid-area: number;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    width: 24px;
+    border-radius: 100px;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    margin-right: 8px;
+  }
+
+  .accordion-icon {
+    grid-area: icon;
+    display: inline-block;
+    margin-left: 8px;
+    transition: transform 0.3s ease;
+
+    &.rotated {
+      transform: rotate(-180deg);
+    }
+  }
+
+  &.active {
+    font-weight: bold;
+    .stepper-item__number {
+      background-color: var(--primary) !important;
+      border-color: var(--primary) !important;
+      color: var(--primary-ghost) !important;
+    }
+    &:hover {
+      // background-color: var(--primary-ghost);
+    }
+  }
+
+  &.success {
+    .stepper-item__number {
+      background-color: var(--success);
+      border-color: var(--success);
+      color: var(--success-text);
+    }
+    &:hover {
+      background-color: var(--success);
+    }
+    &.active:hover {
+      background-color: var(--gray150);
+    }
+  }
+
+  &.warning {
+    .stepper-item__number {
+      background-color: var(--warning);
+      border-color: var(--warning);
+      color: var(--warning-text);
+    }
+    &:hover {
+      background-color: var(--warning);
+    }
+    &.active:hover {
+      background-color: var(--gray150);
+    }
+  }
+
+  &.error {
+    .stepper-item__number {
+      background-color: var(--error);
+      border-color: var(--error);
+      color: var(--error-text);
+    }
+    &:hover {
+      background-color: var(--error);
+    }
+    &.active:hover {
+      background-color: var(--gray150);
+    }
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    pointer-events: none;
+    .stepper-item__label {
+      color: var(--gray500);
+    }
+    .stepper-item__number {
+      background-color: var(--gray200);
+      border-color: var(--gray200);
+      color: var(--gray500);
+    }
+  }
+
+  &:hover {
+    background-color: var(--gray150);
+    // .stepper-item__label {
+    //   color: var(--primary);
+    // }
+  }
+}
+
+.stepper-subitems {
+  display: flex;
+  flex-direction: column;
+  // overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  gap: 4px;
+  pointer-events: none;
+  padding: 0;
+  margin-left: 18px;
+  border-left: 1px solid var(--gray300);
+  transition:
+    max-height 0.3s ease-in-out,
+    padding 0.3s ease-in-out,
+    opacity 0.3s ease-in-out;
+
+  &.open {
+    opacity: 1;
+    padding: 6px 16px;
+    pointer-events: auto;
+    max-height: 500px;
+  }
+}
+
+.stepper-subitem {
+  all: unset;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: 'number label';
+  cursor: pointer;
+  padding: 4px 4px;
+  margin-bottom: 4px;
+  align-items: center;
+  width: 100%;
+  font-size: var(--font-size-small);
+  color: var(--text-color);
+  border-radius: var(--border-radius-sm);
+  box-sizing: border-box;
+  transition: all 0.2s ease-in-out;
+
+  &__label {
+    grid-area: label;
+    min-width: 0;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    justify-content: space-between;
+  }
+
+  &__number {
+    grid-area: number;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 20px;
+    width: 20px;
+    border-radius: 100px;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    margin-right: 8px;
+  }
+
+  &.active {
+    font-weight: bold;
+    .stepper-subitem__number {
+      background-color: var(--primary) !important;
+      border-color: var(--primary) !important;
+      color: var(--primary-ghost) !important;
+    }
+  }
+
+  &.success {
+    .stepper-subitem__number {
+      background-color: var(--success);
+      border-color: var(--success);
+      color: var(--success-text);
+    }
+    &:hover {
+      background-color: var(--success);
+    }
+    &.active:hover {
+      background-color: var(--gray150);
+    }
+  }
+
+  &.warning {
+    .stepper-subitem__number {
+      background-color: var(--warning);
+      border-color: var(--warning);
+      color: var(--warning-text);
+    }
+    &:hover {
+      background-color: var(--warning);
+    }
+    &.active:hover {
+      background-color: var(--gray150);
+    }
+  }
+
+  &.error {
+    .stepper-subitem__number {
+      background-color: var(--error);
+      border-color: var(--error);
+      color: var(--error-text);
+    }
+    &:hover {
+      background-color: var(--error);
+    }
+    &.active:hover {
+      background-color: var(--gray150);
+    }
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    pointer-events: none;
+    .stepper-subitem__label {
+      color: var(--gray500);
+    }
+    .stepper-subitem__number {
+      background-color: var(--gray200);
+      border-color: var(--gray200);
+      color: var(--gray500);
+    }
+  }
+
+  &:hover {
+    background-color: var(--gray150);
+  }
+}
+
+@media screen and (max-width: 720px) {
+  .stepper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stepper-wrapper {
+    display: none;
+  }
+
+  .stepper-items {
+    display: none;
+  }
+
+  .stepper-title {
+    cursor: pointer;
+    &__subtitle {
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &__right {
+      .stepper-progress {
+        display: block;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .accordion-icon {
+        display: inline;
+        font-size: 14px;
+        margin-left: 8px;
+        float: right;
+        transition: transform 0.3s ease;
+
+        &.rotated {
+          transform: rotate(-180deg);
+        }
+      }
+    }
+  }
+
+  .stepper-content-card {
+    padding: var(--base-padding);
+  }
+}
+
+:host-context([data-theme='dark']) {
+  .stepper-item {
+    &__number {
+      border-color: var(--gray300);
+    }
+    &.success {
+      &:hover {
+        background-color: var(--success) !important;
+      }
+      &.active:hover {
+        background-color: var(--gray150) !important;
+      }
+    }
+    &.warning {
+      &:hover {
+        background-color: var(--warning) !important;
+      }
+      &.active:hover {
+        background-color: var(--gray150) !important;
+      }
+    }
+    &.error {
+      &:hover {
+        background-color: var(--error) !important;
+      }
+      &.active:hover {
+        background-color: var(--gray150) !important;
+      }
+    }
+  }
+
+  .stepper-subitem {
+    &__number {
+      border-color: var(--gray300);
+    }
+    &.success {
+      &:hover {
+        background-color: var(--success) !important;
+      }
+      &.active:hover {
+        background-color: var(--gray150) !important;
+      }
+    }
+    &.warning {
+      &:hover {
+        background-color: var(--warning) !important;
+      }
+      &.active:hover {
+        background-color: var(--gray150) !important;
+      }
+    }
+    &.error {
+      &:hover {
+        background-color: var(--error) !important;
+      }
+      &.active:hover {
+        background-color: var(--gray150) !important;
+      }
+    }
+  }
+}

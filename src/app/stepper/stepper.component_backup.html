@@ -1,0 +1,188 @@
+<div class="stepper">
+  <div
+    class="stepper-title"
+    [class.menu-open]="isMobile && mobileAccordionOpen"
+    (click)="isMobile ? toggleMobileAccordion() : null"
+  >
+    <div class="stepper-title__title">
+      {{ headerTitle }}
+
+      <div class="stepper-title__subtitle">
+        @if (headerSubtitle) {
+          {{ headerSubtitle }}
+        }
+      </div>
+    </div>
+
+    <div class="stepper-title__right">
+      <span class="stepper-progress"> {{ activeIndex + 1 }} of {{ itemsArray.length }} </span>
+      @if (isMobile && itemsArray.length > 0) {
+        <i
+          class="fas fa-angle-down accordion-icon"
+          [class.rotated]="isMobile && mobileAccordionOpen"
+        ></i>
+      }
+    </div>
+
+    <div
+      class="stepper-items-mobile"
+      [class.open]="isMobile && mobileAccordionOpen"
+      [attr.aria-hidden]="!(isMobile && mobileAccordionOpen)"
+      (click)="$event.stopPropagation()"
+    >
+      @for (item of itemsArray; track item; let i = $index) {
+        <div
+          class="stepper-item"
+          [class.active]="i === activeIndex"
+          [class.success]="item.status === 'success'"
+          [class.warning]="item.status === 'warning'"
+          [class.error]="item.status === 'error'"
+          [class.disabled]="item.status === 'disabled'"
+          (click)="selectStep(i); item.hasChildren ? null : toggleMobileAccordion(false)"
+        >
+          <span class="stepper-item__number">
+            @if (item.hasChildren && i === activeIndex && item.activeChild) {
+              <span>{{ i + 1 }}</span>
+            } @else {
+              <ng-template #parentNormal>
+                @if (item.hasChildren && i === activeIndex) {
+                  <i class="fas fa-angle-right"></i>
+                } @else {
+                  <ng-template #parentStatusOrNumber>
+                    @switch (item.status) {
+                      @case ('success') {
+                        <i class="fas fa-check"></i>
+                      }
+                      @case ('warning') {
+                        <i class="fas fa-exclamation-triangle"></i>
+                      }
+                      @case ('error') {
+                        <i class="fas fa-xmark"></i>
+                      }
+                      @default {
+                        <span>{{ i + 1 }}</span>
+                      }
+                    }
+                  </ng-template>
+                }
+              </ng-template>
+            }
+          </span>
+          <span class="stepper-item__label">
+            {{ item.label }}
+          </span>
+          @if (item.hasChildren) {
+            <i class="fas fa-angle-down accordion-icon" [class.rotated]="item.expanded"></i>
+          }
+        </div>
+
+        <div class="stepper-subitems" [class.open]="item.hasChildren && item.expanded">
+          @for (child of item.childrenArray; track child; let c = $index) {
+            <div
+              class="stepper-subitem"
+              [class.active]="i === activeIndex && c === activeChildIndex"
+              [class.success]="child.status === 'success'"
+              [class.warning]="child.status === 'warning'"
+              [class.error]="child.status === 'error'"
+              [class.disabled]="child.status === 'disabled'"
+              (click)="selectChild(i, c); toggleMobileAccordion(false)"
+            >
+              <span class="stepper-subitem__number">
+                @if (i === activeIndex && c === activeChildIndex) {
+                  <i class="fas fa-angle-right"></i>
+                } @else {
+                  <ng-template #childStatusOrNumber>
+                    @switch (child.status) {
+                      @case ('success') {
+                        <i class="fas fa-check"></i>
+                      }
+                      @case ('warning') {
+                        <i class="fas fa-exclamation-triangle"></i>
+                      }
+                      @case ('error') {
+                        <i class="fas fa-xmark"></i>
+                      }
+                      @default {
+                        <span>{{ c + 1 }}</span>
+                      }
+                    }
+                  </ng-template>
+                }
+              </span>
+              <span class="stepper-subitem__label">
+                {{ child.label }}
+              </span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="stepper-wrapper">
+    @if (!isMobile) {
+      <div class="stepper-items">
+        @for (item of itemsArray; track item; let i = $index) {
+          <div
+            class="stepper-item"
+            [class.active]="i === activeIndex"
+            [class.success]="item.status === 'success'"
+            [class.warning]="item.status === 'warning'"
+            [class.error]="item.status === 'error'"
+            [class.disabled]="item.status === 'disabled'"
+            (click)="selectStep(i)"
+          >
+            <span class="stepper-item__number">
+              @if (item.hasChildren && i === activeIndex && item.activeChild) {
+                <span>{{ i + 1 }}</span>
+              } @else {
+                <ng-container [ngTemplateOutlet]="parentNormal"></ng-container>
+              }
+            </span>
+            <span class="stepper-item__label"> {{ item.label }} </span>
+            @if (item.hasChildren) {
+              <i class="fas fa-angle-down accordion-icon" [class.rotated]="item.expanded"></i>
+            }
+          </div>
+
+          <div class="stepper-subitems" [class.open]="item.hasChildren && item.expanded">
+            @for (child of item.childrenArray; track child; let c = index) {
+              <div
+                class="stepper-subitem"
+                [class.active]="i === activeIndex && c === activeChildIndex"
+                [class.success]="child.status === 'success'"
+                [class.warning]="child.status === 'warning'"
+                [class.error]="child.status === 'error'"
+                [class.disabled]="child.status === 'disabled'"
+                (click)="selectChild(i, c)"
+              >
+                <span class="stepper-subitem__number">
+                  @if (i === activeIndex && c === activeChildIndex) {
+                    <i class="fas fa-angle-right"></i>
+                  } @else {
+                    <ng-container [ngTemplateOutlet]="childStatusOrNumber"></ng-container>
+                  }
+                </span>
+                <span class="stepper-subitem__label"> {{ child.label }} </span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <div class="stepper-content-card">
+      @if (activeContent) {
+        <ng-container *ngTemplateOutlet="activeContent"></ng-container>
+      }
+    </div>
+  </div>
+
+  @if (isMobile) {
+    <div class="stepper-content-card">
+      @if (activeContent) {
+        <ng-container *ngTemplateOutlet="activeContent"></ng-container>
+      }
+    </div>
+  }
+</div>
