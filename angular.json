@@ -1,129 +1,103 @@
-<div class="speech-list">
-  <header class="speech-list__header">
-    <h1 class="speech-list__title">My Speeches</h1>
-    <div class="speech-list__header-actions">
-      @if (speeches().length > 0) {
-        <app-button variant="primary" (click)="createNew()">
-          <i class="fas fa-plus"></i> New
-        </app-button>
-      }
-      <div class="speech-list__archive-wrap">
-        <app-button variant="circle" (click)="goArchive()" title="Archived Speeches">
-          <i class="fas fa-box-open"></i>
-        </app-button>
-        @if (archivedCount() > 0) {
-          <app-badge class="speech-list__archive-badge">{{ archivedCount() }}</app-badge>
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "component-playground": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
         }
-      </div>
-      <app-button
-        variant="circle"
-        (click)="goSettings()"
-        title="Settings"
-        [class.speech-list__avatar-btn--photo]="!!userPhoto()"
-        [style.background]="userPhoto() ? 'none' : currentColor()"
-        [style.color]="userPhoto() ? 'inherit' : '#fff'"
-      >
-        @if (userPhoto()) {
-          <img class="speech-list__avatar-img" [src]="userPhoto()!" alt="Profile" />
-        } @else {
-          <span class="speech-list__avatar-initials">{{ initials() }}</span>
-        }
-      </app-button>
-    </div>
-  </header>
-
-  @if (speeches().length === 0) {
-    <div class="speech-list__empty">
-      <div class="speech-list__empty-icon">
-        <i class="fas fa-microphone-slash"></i>
-      </div>
-      <h2 class="speech-list__empty-title">No speeches yet</h2>
-      <p class="speech-list__empty-subtitle">
-        Create your first speech to get started with the teleprompter.
-      </p>
-      <app-button variant="primary" (click)="createNew()">
-        <i class="fas fa-plus"></i> Create a Speech
-      </app-button>
-    </div>
-  } @else {
-    <div class="speech-list__search">
-      <i class="fas fa-magnifying-glass speech-list__search-icon"></i>
-      <input
-        class="speech-list__search-input"
-        type="search"
-        [ngModel]="searchQuery()"
-        (ngModelChange)="searchQuery.set($event)"
-        placeholder="Search speeches..."
-        autocomplete="off"
-      />
-    </div>
-
-    @if (filteredSpeeches().length === 0) {
-      <div class="speech-list__empty speech-list__empty--search">
-        <div class="speech-list__empty-icon">
-          <i class="fas fa-magnifying-glass"></i>
-        </div>
-        <h2 class="speech-list__empty-title">No results</h2>
-        <p class="speech-list__empty-subtitle">No speeches match your search.</p>
-      </div>
-    } @else {
-      <ul class="speech-list__items">
-        @for (speech of filteredSpeeches(); track speech.id) {
-          <li class="speech-list__item" (click)="open(speech)">
-            @if (deletingId() === speech.id) {
-              <div class="speech-list__delete-confirm" (click)="$event.stopPropagation()">
-                <p>
-                  Delete <strong>{{ speech.name }}</strong
-                  >? Your speech will be archived for 30 days.
-                </p>
-                <div class="speech-list__delete-actions">
-                  <button class="speech-list__cancel-btn" (click)="cancelDelete()">Cancel</button>
-                  <button class="speech-list__delete-btn" (click)="deleteConfirmed(speech)">
-                    Delete
-                  </button>
-                </div>
-              </div>
-            } @else {
-              <div class="speech-list__item-content">
-                <div class="speech-list__item-main">
-                  <span class="speech-list__item-name" [innerHTML]="highlight(speech.name)"></span>
-                  <span class="speech-list__item-date">Last edited {{ formatDate(speech.updatedAt ?? speech.createdAt) }}</span>
-                  @if (speech.text) {
-                    <p class="speech-list__item-preview" [innerHTML]="highlight(smartPreview(speech.text))"></p>
-                  }
-                </div>
-                <div class="speech-list__item-actions">
-                  <app-dropdown>
-                    <app-dropdown-item (click)="duplicate(speech)">
-                      <i class="fas fa-copy"></i> Duplicate
-                    </app-dropdown-item>
-                    <app-dropdown-item [danger]="true" (click)="confirmDelete(speech)">
-                      <i class="fas fa-trash"></i> Delete
-                    </app-dropdown-item>
-                  </app-dropdown>
-                  <i class="fas fa-chevron-right speech-list__item-arrow"></i>
-                </div>
-              </div>
+      },
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": [
+              "src/styles.scss"
+            ],
+            "server": "src/main.server.ts",
+            "outputMode": "server",
+            "ssr": {
+              "entry": "src/server.ts"
             }
-          </li>
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "component-playground:build:production"
+            },
+            "development": {
+              "buildTarget": "component-playground:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular/build:extract-i18n"
+        },
+        "test": {
+          "builder": "@angular/build:karma",
+          "options": {
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "tsConfig": "tsconfig.spec.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
+            "styles": [
+              "src/styles.scss"
+            ]
+          }
         }
-      </ul>
+      }
     }
   }
-
-  @if (showUpgradeModal()) {
-    <app-modal title="Speech Limit Reached" [hasIcon]="true" (close)="showUpgradeModal.set(false)">
-      <i modal-icon class="fas fa-star"></i>
-      <p modal-body>
-        Free plans are limited to <strong>3 speeches</strong>. Upgrade to Pro for unlimited
-        speeches and more.
-      </p>
-      <app-button modal-actions variant="primary" [block]="true" (click)="showUpgradeModal.set(false)">
-        Upgrade to Pro
-      </app-button>
-      <app-button modal-actions variant="small-plain" [block]="true" (click)="showUpgradeModal.set(false)">
-        Maybe Later
-      </app-button>
-    </app-modal>
-  }
-</div>
+}
