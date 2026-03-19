@@ -1,0 +1,10 @@
+<button
+  class="btn"
+  [class]="'btn--' + variant"
+  [class.btn--block]="block"
+  [type]="type"
+  [title]="title"
+  [disabled]="disabled"
+>
+  <ng-content></ng-content>
+</button>

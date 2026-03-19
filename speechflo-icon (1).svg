@@ -1,0 +1,371 @@
+<div class="settings">
+  <header class="settings__header">
+    <app-button variant="circle" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i>
+    </app-button>
+    <h1 class="settings__title">{{ viewTitle() }}</h1>
+  </header>
+
+  <!-- ── Main Settings View ─────────────────────────────────────────────── -->
+  @if (view() === 'main') {
+    @if (user(); as u) {
+      <div class="settings__user-card">
+        @if (userPhoto()) {
+          <div class="settings__avatar settings__avatar--photo">
+            <img [src]="userPhoto()" alt="Profile photo" />
+          </div>
+        } @else {
+          <div class="settings__avatar" [style.background]="currentColor()">
+            {{ initials() }}
+          </div>
+        }
+        <div class="settings__user-info">
+          <span class="settings__user-name">{{ u.firstName }} {{ u.lastName }}</span>
+          <span class="settings__user-username">@{{ u.username }}</span>
+        </div>
+        <app-button variant="small" (click)="openEditModal()">Edit</app-button>
+      </div>
+
+      <div class="settings__section">
+        <div class="settings__section-label">Preferences</div>
+        <div class="settings__list">
+          <div class="settings__row" (click)="view.set('color')">
+            <div class="settings__row-left">
+              <div class="settings__row-icon">
+                <div class="settings__color-dot" [style.background]="currentColor()"></div>
+              </div>
+              <span class="settings__row-label">Primary Color</span>
+            </div>
+            <div class="settings__row-right">
+              <span class="settings__row-value">{{ currentColorName() }}</span>
+              <i class="fas fa-chevron-right settings__row-chevron"></i>
+            </div>
+          </div>
+
+          <div class="settings__row" (click)="view.set('appearance')">
+            <div class="settings__row-left">
+              <div class="settings__row-icon settings__row-icon--gray">
+                <i class="fas fa-circle-half-stroke"></i>
+              </div>
+              <span class="settings__row-label">Appearance</span>
+            </div>
+            <div class="settings__row-right">
+              <span class="settings__row-value">{{ appearanceLabel() }}</span>
+              <i class="fas fa-chevron-right settings__row-chevron"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings__section">
+        <div class="settings__section-label">Account</div>
+        <div class="settings__list">
+          <div class="settings__row settings__row--no-tap">
+            <div class="settings__row-left">
+              <div class="settings__row-icon settings__row-icon--gray">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <span class="settings__row-label">Email</span>
+            </div>
+            <div class="settings__row-right">
+              <span class="settings__row-value">{{ user()?.email }}</span>
+            </div>
+          </div>
+
+          <div class="settings__row" (click)="view.set('archive')">
+            <div class="settings__row-left">
+              <div class="settings__row-icon settings__row-icon--gray">
+                <i class="fas fa-box-archive"></i>
+              </div>
+              <span class="settings__row-label">Archived Speeches</span>
+            </div>
+            <div class="settings__row-right">
+              @if (archiveCount() > 0) {
+                <app-badge>{{ archiveCount() }}</app-badge>
+              }
+              <i class="fas fa-chevron-right settings__row-chevron"></i>
+            </div>
+          </div>
+
+          <div class="settings__row settings__row--no-tap">
+            <div class="settings__row-left">
+              <div class="settings__row-icon settings__row-icon--amber">
+                <i class="fas fa-star"></i>
+              </div>
+              <span class="settings__row-label">Subscription</span>
+            </div>
+            <div class="settings__row-right">
+              <app-badge [variant]="u.subscriptionLevel === 'free' ? 'neutral' : 'pro'">
+                {{ subscriptionLabel[u.subscriptionLevel] }}
+              </app-badge>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings__section">
+        <button class="settings__signout-btn" (click)="signOut()">
+          <i class="fas fa-arrow-right-from-bracket"></i> Sign Out
+        </button>
+      </div>
+    }
+  }
+
+  <!-- ── Edit Profile Modal ────────────────────────────────────────────── -->
+  @if (editModalOpen()) {
+    <div class="settings__modal-overlay" (click)="closeEditModal()">
+      <div class="settings__modal" (click)="$event.stopPropagation()">
+        <h2 class="settings__modal-title">Edit Profile</h2>
+
+        <div class="settings__modal-photo">
+          @if (editPhoto()) {
+            <img
+              class="settings__modal-avatar settings__modal-avatar--photo"
+              [src]="editPhoto()"
+              alt="Profile photo"
+            />
+          } @else {
+            <div class="settings__modal-avatar" [style.background]="currentColor()">
+              {{ initials() }}
+            </div>
+          }
+          <label class="settings__modal-photo-btn">
+            <i class="fas fa-camera"></i> Change Photo
+            <input type="file" accept="image/*" (change)="onPhotoChange($event)" hidden />
+          </label>
+        </div>
+
+        @if (editError()) {
+          <div class="settings__modal-error">
+            <i class="fas fa-circle-exclamation"></i> {{ editError() }}
+          </div>
+        }
+
+        <div class="settings__modal-fields">
+          <div class="settings__modal-field-row">
+            <div class="settings__modal-field">
+              <label class="settings__modal-label">First Name</label>
+              <input
+                class="settings__modal-input"
+                type="text"
+                [ngModel]="editFirstName()"
+                (ngModelChange)="editFirstName.set($event)"
+                placeholder="First name"
+                autocomplete="given-name"
+              />
+            </div>
+            <div class="settings__modal-field">
+              <label class="settings__modal-label">Last Name</label>
+              <input
+                class="settings__modal-input"
+                type="text"
+                [ngModel]="editLastName()"
+                (ngModelChange)="editLastName.set($event)"
+                placeholder="Last name"
+                autocomplete="family-name"
+              />
+            </div>
+          </div>
+          <div class="settings__modal-field">
+            <label class="settings__modal-label">Username</label>
+            <input
+              class="settings__modal-input"
+              type="text"
+              [ngModel]="editUsername()"
+              (ngModelChange)="editUsername.set($event)"
+              placeholder="Username"
+              autocomplete="username"
+              autocapitalize="none"
+            />
+          </div>
+        </div>
+
+        <div class="settings__modal-actions">
+          <app-button variant="ghost" [block]="true" (click)="closeEditModal()">Cancel</app-button>
+          <app-button variant="primary" [block]="true" (click)="saveProfile()">Save</app-button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ── Primary Color View ─────────────────────────────────────────────── -->
+  @if (view() === 'color') {
+    <p class="settings__hint">Choose an accent color used for buttons, highlights, and links.</p>
+    <div class="settings__color-grid">
+      @for (color of colors; track color.hex) {
+        <div class="settings__color-item">
+          <button
+            class="settings__color-swatch"
+            [style.background]="color.hex"
+            [class.settings__color-swatch--selected]="currentColor() === color.hex"
+            (click)="selectColor(color.hex)"
+            [title]="color.name"
+          >
+            @if (currentColor() === color.hex) {
+              <i class="fas fa-check"></i>
+            }
+          </button>
+          <span
+            class="settings__color-label"
+            [class.settings__color-label--active]="currentColor() === color.hex"
+          >
+            {{ color.name }}
+          </span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── Appearance View ────────────────────────────────────────────────── -->
+  @if (view() === 'appearance') {
+    <div class="settings__sub-section">
+      <div class="settings__list">
+        @for (opt of appearanceOptions; track opt.value) {
+          <div class="settings__row" (click)="setAppearance(opt.value)">
+            <div class="settings__row-left">
+              <div class="settings__row-icon settings__row-icon--gray">
+                <i class="fas {{ opt.icon }}"></i>
+              </div>
+              <span class="settings__row-label">{{ opt.label }}</span>
+            </div>
+            <div class="settings__row-right">
+              @if (currentAppearance() === opt.value) {
+                <i class="fas fa-check settings__check-mark"></i>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ── Email View ────────────────────────────────────────────────────── -->
+  @if (view() === 'email') {
+    <div class="settings__sub-section">
+      <p class="settings__hint">
+        Add an email address to your account for account recovery and notifications.
+      </p>
+      @if (emailError()) {
+        <div class="settings__email-error">
+          <i class="fas fa-circle-exclamation"></i> {{ emailError() }}
+        </div>
+      }
+      <div class="settings__email-field">
+        <label class="settings__email-label">Email Address</label>
+        <input
+          class="settings__email-input"
+          type="email"
+          [ngModel]="emailInput()"
+          (ngModelChange)="emailInput.set($event)"
+          placeholder="you@example.com"
+          autocomplete="email"
+          autocapitalize="none"
+        />
+      </div>
+      <app-button variant="primary" [block]="true" (click)="saveEmail()">Save</app-button>
+    </div>
+  }
+
+  <!-- ── Archived Speeches View ─────────────────────────────────────────── -->
+  @if (view() === 'archive') {
+    @if (archivedSpeeches().length === 0) {
+      <div class="settings__empty-archive">
+        <i class="fas fa-box-open"></i>
+        <p>No archived speeches</p>
+        <span>Deleted speeches appear here for 30 days before being permanently removed.</span>
+      </div>
+    } @else {
+      <div class="settings__archive-search">
+        <i class="fas fa-magnifying-glass settings__archive-search-icon"></i>
+        <input
+          class="settings__archive-search-input"
+          type="search"
+          [ngModel]="archiveQuery()"
+          (ngModelChange)="archiveQuery.set($event)"
+          placeholder="Search by title or content..."
+          autocomplete="off"
+        />
+      </div>
+
+      @if (filteredArchivedSpeeches().length === 0) {
+        <div class="settings__empty-archive settings__empty-archive--search">
+          <i class="fas fa-magnifying-glass"></i>
+          <p>No results</p>
+          <span>No archived speeches match your search.</span>
+        </div>
+      } @else {
+        <p class="settings__hint">
+          Deleted speeches are kept for 30 days. Restore them before they expire.
+        </p>
+        <div class="settings__archive-list">
+          @for (speech of filteredArchivedSpeeches(); track speech.id) {
+            <div class="settings__archive-card" (click)="restoringId() === speech.id ? null : openArchivedSpeech(speech)">
+              @if (restoringId() === speech.id) {
+                <div class="settings__restore-confirm" (click)="$event.stopPropagation()">
+                  <p>Restore <strong>{{ speech.name }}</strong>?</p>
+                  <div class="settings__restore-actions">
+                    <button class="settings__cancel-btn" (click)="cancelRestore()">Cancel</button>
+                    <button class="settings__confirm-restore-btn" (click)="restore(speech)">Restore</button>
+                  </div>
+                </div>
+              } @else {
+                <div class="settings__archive-info">
+                  <div class="settings__archive-header">
+                    <app-badge [variant]="daysVariant(daysRemaining(speech.deletedAt ?? ''))">
+                      {{ daysRemaining(speech.deletedAt ?? '') }}d left
+                    </app-badge>
+                    <span class="settings__archive-name" [innerHTML]="highlight(speech.name)"></span>
+                  </div>
+                  @if (speech.text) {
+                    <p class="settings__archive-preview" [innerHTML]="highlight(smartPreview(speech.text))"></p>
+                  }
+                </div>
+                <div class="settings__archive-actions">
+                  <app-button
+                    variant="text"
+                    (click)="$event.stopPropagation(); confirmRestore(speech)"
+                    title="Restore"
+                  >
+                    <i class="fas fa-rotate-left"></i>
+                  </app-button>
+                  <i class="fas fa-chevron-right settings__row-chevron"></i>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+  }
+
+  <!-- ── Restore Upgrade Modal ─────────────────────────────────────────── -->
+  @if (showRestoreUpgradeModal()) {
+    <app-modal
+      title="Speech Limit Reached"
+      [hasIcon]="true"
+      (close)="showRestoreUpgradeModal.set(false)"
+    >
+      <i modal-icon class="fas fa-star"></i>
+      <p modal-body>
+        Free plans are limited to <strong>3 speeches</strong>. Upgrade to Pro to restore more
+        speeches.
+      </p>
+      <app-button
+        modal-actions
+        variant="primary"
+        [block]="true"
+        (click)="showRestoreUpgradeModal.set(false)"
+      >
+        Upgrade to Pro
+      </app-button>
+      <app-button
+        modal-actions
+        variant="small-plain"
+        [block]="true"
+        (click)="showRestoreUpgradeModal.set(false)"
+      >
+        Maybe Later
+      </app-button>
+    </app-modal>
+  }
+</div>

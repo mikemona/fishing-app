@@ -1,0 +1,15 @@
+<div class="speech-toolbar">
+  @if (!isSpeechMode) {
+    <app-button variant="ghost" (click)="dictateToggle.emit()">
+      <i class="fas" [class.fa-microphone]="!isDictating" [class.fa-stop]="isDictating"></i>
+      {{ isDictating ? 'Stop' : 'Speak to Type' }}
+    </app-button>
+  }
+  <div class="speech-toolbar__toggle">
+    <app-toggle
+      label="Speech Mode"
+      [checked]="isSpeechMode"
+      (checkedChange)="speechModeToggle.emit()"
+    ></app-toggle>
+  </div>
+</div>

@@ -1,0 +1,36 @@
+.stepper-item {
+  align-items: center;
+  border: none;
+  border-radius: 1rem;
+  box-shadow: none;
+  cursor: pointer;
+  display: flex;
+  gap: 4px;
+  min-height: 24px;
+  outline: none;
+  padding: 0.25rem 0.75rem 0.25rem 0.5rem;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+  background-color: #f0f0f0;
+  font-size: 13px;
+
+  &.active {
+    font-weight: bold;
+    background-color: lightblue;
+  }
+
+  &.success {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  &.warning {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+
+  &.error {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+}

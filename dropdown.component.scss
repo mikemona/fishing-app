@@ -1,0 +1,31 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  width: fit-content;
+  line-height: 1;
+
+  &.badge--neutral {
+    background: var(--gray150);
+    color: var(--gray600);
+  }
+
+  &.badge--pro {
+    background: var(--primary-ghost);
+    color: var(--primary);
+  }
+
+  &.badge--danger {
+    background: var(--error);
+    color: var(--error-text);
+  }
+
+  &.badge--warning {
+    background: var(--warning);
+    color: var(--warning-text);
+  }
+}
